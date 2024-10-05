@@ -1,36 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kontakt</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
         <h1>Kontakt</h1>
-        <nav>
-            <ul>
-                <li><a href="glowna.html">Strona Główna</a></li>
-                <li><a href="nazizm.html">Udział III Rzeszy wyścigu kosmicznym</a></li>
-                <li><a href="pierwsze.html">Pierwsze Misje kosmiczne</a></li>
-                <li><a href="misje.html">Misje załogowe</a></li>
-                <li><a href="stacje.html">Stacje kosmiczne</a></li>
-                <li><a href="kontakt.html">Kontakt</a></li>
-            </ul>
-        </nav>
     </header>
 
-    <main>
-        <h2>Skontaktuj się z nami</h2>
-        <form action="mailto:twojemail@example.com" method="post" enctype="text/plain">
-            <label for="name">Imię:</label>
-            <input type="text" id="name" name="name" required><br>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required><br>
-            <label for="message">Wiadomość:</label><br>
-            <textarea id="message" name="message" required></textarea><br>
-            <input type="submit" value="Wyślij">
+    <nav>
+        <ul>
+            <li><a href="index.html">Strona Główna</a></li>
+            <li><a href="rzesza.html">III Rzesza w Kosmosie</a></li>
+            <li><a href="pierwsze-misje.html">Pierwsze Misje Kosmiczne</a></li>
+            <li><a href="misje-zalogowe.html">Misje Załogowe</a></li>
+            <li><a href="stacje.html">Stacje Kosmiczne</a></li>
+            <li><a href="komercjalizacja.html">Komercjalizacja Kosmosu</a></li>
+            <li><a href="kontakt.html">Kontakt</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h2>Formularz kontaktowy</h2>
+        <form action="mailto:twojemail@domena.pl" method="post" enctype="text/plain">
+            <table>
+                <tr>
+                    <td class="bg-color">Imię:</td>
+                    <td><input type="text" name="name"></td>
+                </tr>
+                <tr>
+                    <td class="bg-color">E-mail:</td>
+                    <td><input type="email" name="email"></td>
+                </tr>
+                <tr>
+                    <td class="bg-color">Wiadomość:</td>
+                    <td><textarea name="message"></textarea></td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <input type="submit" value="Wyślij">
+                    </td>
+                </tr>
+            </table>
         </form>
-    </main>
+    </div>
+
+    <footer>
+        &copy; 2024 Historia Kosmosu
+    </footer>
 </body>
 </html>
