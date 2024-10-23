@@ -114,3 +114,21 @@ p {
     background-color: #5a6268; 
 }
   
+.block_test {
+    width: 200px;
+    border: 2px solid rgb(35, 232, 203);
+    background-color: rgba(38, 235, 212, 0.9);
+    text-align: center;
+    color: white;
+    padding: 20px;
+    cursor: pointer;
+    display: flex;
+    margin: 10px;
+    justify-content: center;
+    align-items: center;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select: none;
+}
