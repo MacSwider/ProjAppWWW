@@ -1,0 +1,134 @@
+body {
+    font-family: Arial, sans-serif;
+    background-image: url('grafiki/background.jpg'); 
+    background-size: cover; 
+    background-repeat: no-repeat; 
+    background-position: center; 
+    color: #ffffffeb;
+}
+
+header {
+    background-color: #1b1837;
+    color: #ffffffeb;
+    padding: 20px;
+    text-align: center;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(97, 104, 174);
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+nav ul li a {
+    color: #333232;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 10px 15px; 
+    display: inline-block; 
+}
+
+nav ul li a:hover {
+    background-color: #333232; 
+    color: #fff; 
+    text-decoration: none; 
+}
+
+h1, h2 {
+    color: #4a4d8e;
+}
+
+.container {
+    width: 80%;
+    margin: 20px auto;
+    display: flex; 
+    flex-wrap: wrap; 
+    justify-content: space-between; 
+}
+
+img {
+    max-width: 30%; 
+    height: auto;
+    margin: 10px; 
+    float: left; 
+    margin-right: 15px; 
+    border: 5px solid #8398e4; 
+    border-radius: 10px; 
+}
+
+.text-content {
+    overflow: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+td.bg-color {
+    background-color: #eee;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #2d275f;
+    color: white;
+    margin-top: 20px;
+}
+
+p {
+    word-wrap: break-word;
+}
+
+.img-left {
+    float: left;
+    margin-left: 15px; 
+    margin-right: 15px;
+}
+
+.button {
+    padding: 10px 20px;
+    background-color: #6c757d; 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: not-allowed; 
+    font-size: 16px;
+    margin: 5px; 
+}
+
+.button:hover {
+    background-color: #5a6268; 
+}
+  
+.block_test {
+    width: 200px;
+    border: 2px solid rgb(35, 232, 203);
+    background-color: rgba(38, 235, 212, 0.9);
+    text-align: center;
+    color: white;
+    padding: 20px;
+    cursor: pointer;
+    display: flex;
+    margin: 10px;
+    justify-content: center;
+    align-items: center;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select: none;
+}
