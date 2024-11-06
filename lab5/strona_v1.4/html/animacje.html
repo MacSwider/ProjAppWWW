@@ -1,70 +1,45 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animacje</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <link rel="stylesheet"  href="../css/style.css">
-</head>
 
-<nav>
-    <ul>
-        <li><a href="../index.html">Strona Główna</a></li>
-        <li><a href="../html/rzesza.html">III Rzesza w Kosmosie</a></li>
-        <li><a href="../html/pierwsze-misje.html">Pierwsze Misje Kosmiczne</a></li>
-        <li><a href="../html/misje-zalogowe.html">Misje Załogowe</a></li>
-        <li><a href="../html/stacje.html">Stacje Kosmiczne</a></li>
-        <li><a href="../html/komercjalizacja.html">Komercjalizacja Kosmosu</a></li>
-        <li><a href="../html/kontakt.html">Kontakt</a></li>
-        <li><a href="../html/skrypty.html">Skrypty (Lab2)</a></li>
-        <li><a href="../html/animacje.html">Animacje (Lab3)</a></li>
-    </ul>
-</nav>
 
 <div id="animacjaTest" class="block_test">Kliknięcie</div>
-        <script>
-            $("#animacjaTest").on("click", function(){
-                $(this).animate({
-                    width: "500px",
-                    opacity: 0.4,
-                    fontSize:"3em",
-                    borderwidth: "10px"
-                }, 1500);
+<script>
+    $("#animacjaTest").on("click", function(){
+        $(this).animate({
+            width: "500px",
+            opacity: 0.4,
+            fontSize:"3em",
+            borderwidth: "10px"
+        }, 1500);
+    });
+</script>    
+
+<div id="animacjaTest2" class="block_test">
+    Najechanie
+</div>
+<script>
+    $("#animacjaTest2").on({
+        "mouseover" : function() {
+            $(this).animate({
+                width: 300
+            }, 800);
+        },
+        "mouseout" : function() {
+            $(this).animate({
+                width: 200
+            }, 800);
+        }
+    });
+</script>
+
+<div id="animacjaTest3" class="block_test">Kliknięcie kilka razy</div>
+<script>
+    $("#animacjaTest3").on("click", function(){
+        if (!$(this).is(":animated")) {
+            $(this).animate({
+                width: "+=" + 50,
+                height: "+=" + 10,
+                opacity: "-=" + 0.1,
+                duration : 3000
             });
-        </script>    
-        <div id="animacjaTest2" class="block_test">
-            Najechanie
-        </div>
-        
-        <script>
-            $("#animacjaTest2").on({
-                "mouseover" : function() {
-                    $(this).animate({
-                        width: 300
-                    }, 800);
-                },
-                "mouseout" : function() {
-                    $(this).animate({
-                        width: 200
-                    }, 800);
-                }
-            });
-        </script>
-        <div id="animacjaTest3" class="block_test">Kliknięcie kilka razy</div>
-        <script>
-            $("#animacjaTest3").on("click", function(){
-                if (!$(this).is(":animated")) {
-                    $(this).animate({
-                        width: "+=" + 50,
-                        height: "+=" + 10,
-                        opacity: "-=" + 0.1,
-                        duration : 3000
-                    });
-                }
-            });
-        </script>
-        
-    </div>
+        }
+    });
+</script>
