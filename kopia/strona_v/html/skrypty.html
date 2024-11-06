@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zmiana koloru tła i zegar</title>
+    <script src="skrypty/kolorujtlo.js"></script>
+    <script src="skrypty/timedate.js"></script>
+</head>
+
+<nav>
+    <ul>
+        <li><a href="../index.html">Strona Główna</a></li>
+        <li><a href="../html/rzesza.html">III Rzesza w Kosmosie</a></li>
+        <li><a href="../html/pierwsze-misje.html">Pierwsze Misje Kosmiczne</a></li>
+        <li><a href="../html/misje-zalogowe.html">Misje Załogowe</a></li>
+        <li><a href="../html/stacje.html">Stacje Kosmiczne</a></li>
+        <li><a href="../html/komercjalizacja.html">Komercjalizacja Kosmosu</a></li>
+        <li><a href="../html/kontakt.html">Kontakt</a></li>
+        <li><a href="../html/skrypty.html">Skrypty (Lab2)</a></li>
+        <li><a href="../html/animacje.html">Animacje (Lab3)</a></li>
+    </ul>
+</nav>
+
+<body onload="startclock()">
+    <h1>Wybierz kolor tła</h1>
+    <input type="button" value="Żółty" onclick="changeBackground('#FFF000')">
+    <input type="button" value="Czarny" onclick="changeBackground('#000000')">
+    <input type="button" value="Niebieski" onclick="changeBackground('#0000FF')">
+    <input type="button" value="Czerwony" onclick="changeBackground('#FF0000')">
+
+    
+    
+
+    <h2>Aktualna data: <span id="data"></span></h2>
+    <h2>Aktualny czas: <span id="zegarek"></span></h2>
+</body>
+</html>
