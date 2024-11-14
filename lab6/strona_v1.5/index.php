@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />  
     <meta http-equiv="Content-Language" content="pl" /> 
-    <meta name="Author" content="Tomasz Szewa" />
+    <meta name="Author" content="Maciej Świder" />
     <title>Moje hobby to gry planszowe</title>
     <?php
     if (isset($_GET['idp']) && $_GET['idp'] == 'poligon') {
