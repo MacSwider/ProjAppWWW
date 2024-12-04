@@ -1,0 +1,45 @@
+
+
+<div id="animacjaTest" class="block_test">Kliknięcie</div>
+<script>
+    $("#animacjaTest").on("click", function(){
+        $(this).animate({
+            width: "500px",
+            opacity: 0.4,
+            fontSize:"3em",
+            borderwidth: "10px"
+        }, 1500);
+    });
+</script>    
+
+<div id="animacjaTest2" class="block_test">
+    Najechanie
+</div>
+<script>
+    $("#animacjaTest2").on({
+        "mouseover" : function() {
+            $(this).animate({
+                width: 300
+            }, 800);
+        },
+        "mouseout" : function() {
+            $(this).animate({
+                width: 200
+            }, 800);
+        }
+    });
+</script>
+
+<div id="animacjaTest3" class="block_test">Kliknięcie kilka razy</div>
+<script>
+    $("#animacjaTest3").on("click", function(){
+        if (!$(this).is(":animated")) {
+            $(this).animate({
+                width: "+=" + 50,
+                height: "+=" + 10,
+                opacity: "-=" + 0.1,
+                duration : 3000
+            });
+        }
+    });
+</script>

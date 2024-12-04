@@ -1,0 +1,201 @@
+body {
+    font-family: Arial, sans-serif;
+    background-image: url('../grafiki/background.jpg'); 
+    background-size: cover; 
+    background-repeat: no-repeat; 
+    background-position: center; 
+    color: #ffffffeb;
+}
+
+header {
+    background-color: #1b1837;
+    color: #ffffffeb;
+    padding: 20px;
+    text-align: center;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(97, 104, 174);
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+nav ul li a {
+    color: #333232;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 10px 15px; 
+    display: inline-block; 
+}
+
+nav ul li a:hover {
+    background-color: #333232; 
+    color: #fff; 
+    text-decoration: none; 
+}
+
+h1, h2 {
+    color: #4a4d8e;
+}
+
+.container {
+    width: 80%;
+    margin: 20px auto;
+    display: flex; 
+    flex-wrap: wrap; 
+    justify-content: space-between; 
+}
+
+img {
+    max-width: 30%; 
+    height: auto;
+    margin: 10px; 
+    float: left; 
+    margin-right: 15px; 
+    border: 5px solid #8398e4; 
+    border-radius: 10px; 
+}
+
+.text-content {
+    overflow: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+td.bg-color {
+    background-color: #eee;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #2d275f;
+    color: white;
+    margin-top: 20px;
+}
+
+p {
+    word-wrap: break-word;
+}
+
+.img-left {
+    float: left;
+    margin-left: 15px; 
+    margin-right: 15px;
+}
+
+.button {
+    padding: 10px 20px;
+    background-color: #6c757d; 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: not-allowed; 
+    font-size: 16px;
+    margin: 5px; 
+}
+
+.button:hover {
+    background-color: #5a6268; 
+}
+  
+.block_test {
+    width: 200px;
+    border: 2px solid rgb(35, 232, 203);
+    background-color: rgba(38, 235, 212, 0.9);
+    text-align: center;
+    color: white;
+    padding: 20px;
+    cursor: pointer;
+    display: flex;
+    margin: 10px;
+    justify-content: center;
+    align-items: center;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select: none;
+}
+form input,textarea,button {
+    color: black;
+}
+form input {
+    width: 200px;
+}
+form textarea {
+    width: 100%;
+    height: 100px;
+}
+form button {
+    height: 25px;
+}
+button {
+    padding: 5px;
+    background-color: rgba(83, 82, 148);
+    color: white;
+    border-radius: 25px;
+}
+button:hover {
+    background-color: rgba(54, 54, 54, 0.7);
+}
+.tabelka table{
+    
+    align-items: center;
+    margin: 0 auto;
+}
+
+.logowanie {
+    display: grid;
+    align-items: center;
+}
+
+.podstrony {
+    display: grid;
+   margin: 10px;
+   background-color: rgba(72, 69, 146, 0.8);
+   border-radius: 25px;
+   border: 2px solid black;
+   align-items: center;
+}
+.lista_stron {
+    text-align: center;
+}
+
+.edit-button {
+    padding: 5px;
+    background-color: rgb(25, 123, 28);
+    color: white;
+    border-radius: 25px;
+    padding: 10px;
+    height: 10px;
+    margin: 10px;
+}
+
+.delete-button {
+    padding: 10px;
+    background-color: rgb(172, 35, 35);
+    color: white;
+    border-radius: 25px;
+}
+.edit-button:hover {
+    background-color: rgba(42, 107, 58, 0.7);
+}
+.delete-button:hover {
+    background-color: rgba(107, 42, 42, 0.7);
+}
