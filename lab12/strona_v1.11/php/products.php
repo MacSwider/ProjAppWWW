@@ -6,51 +6,56 @@ class Produkty {
         global $conn;
         $this->conn = $conn;
     }
-    public function pokazSklep() {
-        $output = '<div class="shop-container" style="color: #000;">';
-        $output .= '<h2>Sklep</h2>';
-    
-        // Obsługa dodawania do koszyka
-        if (isset($_GET['action']) && $_GET['action'] === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_POST['id_produktu'], $_POST['tytul'], $_POST['cena_netto'], $_POST['podatek_vat'], $_POST['ilosc'])) {
-                $id_produktu = $_POST['id_produktu'];
-                $tytul = $_POST['tytul'];
-                $cena_netto = (float)$_POST['cena_netto'];
-                $podatek_vat = (float)$_POST['podatek_vat'];
-                $ilosc = (int)$_POST['ilosc'];
+
+    private function getCategories() {
+        $query = "SELECT id, matka, nazwa FROM kategorie ORDER BY matka, id ASC";
+        $result = $this->conn->query($query);
+        $categories = array();
+        $category_tree = array();
+
+        while($row = $result->fetch_assoc()) {
+            $categories[$row['id']] = $row;
+            if (!isset($category_tree[$row['matka']])) {
+                $category_tree[$row['matka']] = array();
+            }
+            $category_tree[$row['matka']][] = $row['id'];
+        }
+
+        return array($categories, $category_tree);
+    }
+
+    private function buildCategoryOptions($categories, $category_tree, $parent = 0, $level = 0, $selected = '') {
+        $html = '';
+        if (isset($category_tree[$parent])) {
+            foreach ($category_tree[$parent] as $category_id) {
+                $category = $categories[$category_id];
+                $indent = str_repeat('&nbsp;&nbsp;&nbsp;&nbsp;', $level);
+                $html .= '<option value="' . htmlspecialchars($category['nazwa']) . '"' . 
+                        ($selected == $category['nazwa'] ? ' selected' : '') . '>' . 
+                        $indent . htmlspecialchars($category['nazwa']) . '</option>';
                 
-                // Oblicz cenę brutto
-                $cena_brutto = $cena_netto * (1 + $podatek_vat / 100);
-    
-                // Dodaj lub zaktualizuj produkt w koszyku
-                if (isset($_SESSION['koszyk'][$id_produktu])) {
-                    $_SESSION['koszyk'][$id_produktu]['ilosc'] += $ilosc;
-                } else {
-                    $_SESSION['koszyk'][$id_produktu] = [
-                        'tytul' => $tytul,
-                        'cena_netto' => $cena_netto,
-                        'podatek_vat' => $podatek_vat,
-                        'cena_brutto' => $cena_brutto,
-                        'ilosc' => $ilosc
-                    ];
+                if (isset($category_tree[$category_id])) {
+                    $html .= $this->buildCategoryOptions($categories, $category_tree, $category_id, $level + 1, $selected);
                 }
-                
-                header('Location: index.php?idp=11&added=1');
-                exit;
             }
         }
+        return $html;
+    }
+
+    public function pokazSklep() {
+        $output = '<div class="shop-container">';
+        $output .= '<h2>Sklep</h2>';
     
-        // Komunikat o dodaniu do koszyka
         if (isset($_GET['added'])) {
             $output .= '<div class="success-message">Produkt został dodany do koszyka!</div>';
         }
     
-        $query = "SELECT * FROM produkty ORDER BY data_utworzenia DESC";
-        $result = $this->conn->query($query);
-    
         if(isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
             $output .= '<div class="admin-link"><a href="?idp=12" class="btn-edit">Panel zarządzania produktami</a></div>';
         }
+    
+        $query = "SELECT * FROM produkty ORDER BY data_utworzenia DESC";
+        $result = $this->conn->query($query);
     
         $output .= '<div class="products-grid">';
     
@@ -69,28 +74,29 @@ class Produkty {
                     $output .= '<img src="img/no-image.png" alt="Brak zdjęcia">';
                 }
                 
-                $output .= '
+                $output .= '</div>
+                    <div class="product-info">
+                        <h3>' . htmlspecialchars($row['tytul']) . '</h3>
+                        <p class="description">' . htmlspecialchars($row['opis']) . '</p>
+                        <div class="price-info">
+                            <p>Cena netto: ' . number_format($row['cena_netto'], 2) . ' zł</p>
+                            <p>Cena brutto: ' . number_format($cena_brutto, 2) . ' zł</p>
+                            <p>VAT: ' . $row['podatek_vat'] . '%</p>
+                        </div>
+                        <div class="product-meta">
+                            <p>Status: ' . ($row['status_dostepnosci'] ? 'Dostępny' : 'Niedostępny') . '</p>
+                            <p>Ilość: ' . $row['ilosc_dostepnych'] . ' szt.</p>
+                            <p>Kategoria: ' . htmlspecialchars($row['kategoria']) . '</p>
+                        </div>
+                        <form method="post" action="index.php?idp=11&action=add" class="add-to-cart-form">
+                            <input type="hidden" name="id_produktu" value="' . $row['id'] . '">
+                            <input type="hidden" name="tytul" value="' . htmlspecialchars($row['tytul']) . '">
+                            <input type="hidden" name="cena_netto" value="' . $row['cena_netto'] . '">
+                            <input type="hidden" name="podatek_vat" value="' . $row['podatek_vat'] . '">
+                            <input type="number" name="ilosc" value="1" min="1" max="' . $row['ilosc_dostepnych'] . '" class="quantity-input">
+                            <button type="submit" class="btn-add-to-cart">Dodaj do koszyka</button>
+                        </form>
                     </div>
-                    <h3>' . htmlspecialchars($row['tytul']) . '</h3>
-                    <p class="description">' . htmlspecialchars($row['opis']) . '</p>
-                    <div class="price-info">
-                        <p>Cena netto: ' . number_format($row['cena_netto'], 2) . ' zł</p>
-                        <p>Cena brutto: ' . number_format($cena_brutto, 2) . ' zł</p>
-                        <p>VAT: ' . $row['podatek_vat'] . '%</p>
-                    </div>
-                    <div class="product-meta">
-                        <p>Status: ' . ($row['status_dostepnosci'] ? 'Dostępny' : 'Niedostępny') . '</p>
-                        <p>Ilość: ' . $row['ilosc_dostepnych'] . ' szt.</p>
-                        <p>Kategoria: ' . htmlspecialchars($row['kategoria']) . '</p>
-                    </div>
-                    <form method="post" action="index.php?idp=11&action=add" class="add-to-cart-form">
-                        <input type="hidden" name="id_produktu" value="' . $row['id'] . '">
-                        <input type="hidden" name="tytul" value="' . htmlspecialchars($row['tytul']) . '">
-                        <input type="hidden" name="cena_netto" value="' . $row['cena_netto'] . '">
-                        <input type="hidden" name="podatek_vat" value="' . $row['podatek_vat'] . '">
-                        <input type="number" name="ilosc" value="1" min="1" max="' . $row['ilosc_dostepnych'] . '" class="quantity-input">
-                        <button type="submit" class="btn-add-to-cart">Dodaj do koszyka</button>
-                    </form>
                 </div>';
             }
         } else {
@@ -100,7 +106,6 @@ class Produkty {
         $output .= '</div></div>';
         return $output;
     }
-
     public function zarzadzajProduktem() {
         if(!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
             return '<p class="error">Dostęp zabroniony. Zaloguj się jako administrator.</p>';
@@ -126,29 +131,37 @@ class Produkty {
                 $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
                 
                 if(in_array($ext, $allowed)) {
-                    $image_data = file_get_contents($_FILES['image']['tmp_name']);
+                    $image_data = addslashes(file_get_contents($_FILES['image']['tmp_name']));
                     
                     if($id) {
                         // Update existing product with new image
-                        $stmt = $this->conn->prepare("UPDATE produkty SET 
-                            tytul = ?, 
-                            opis = ?, 
-                            cena_netto = ?,
-                            podatek_vat = ?,
-                            ilosc_dostepnych = ?,
-                            kategoria = ?,
-                            status_dostepnosci = ?,
-                            zdjecie = ?
-                            WHERE id = ?");
-                        
-                        $stmt->bind_param("ssddissbi", $title, $description, $price, $vat, $quantity, $category, $status, $image_data, $id);
+                        $query = "UPDATE produkty SET 
+                            tytul = '$title', 
+                            opis = '$description', 
+                            cena_netto = $price,
+                            podatek_vat = $vat,
+                            ilosc_dostepnych = $quantity,
+                            kategoria = '$category',
+                            status_dostepnosci = $status,
+                            zdjecie = '$image_data'
+                            WHERE id = $id";
+                            
+                        if($this->conn->query($query)) {
+                            $message = '<div class="success">Produkt został zaktualizowany pomyślnie.</div>';
+                        } else {
+                            $message = '<div class="error">Błąd podczas aktualizacji: ' . $this->conn->error . '</div>';
+                        }
                     } else {
                         // Insert new product with image
-                        $stmt = $this->conn->prepare("INSERT INTO produkty 
+                        $query = "INSERT INTO produkty 
                             (tytul, opis, cena_netto, podatek_vat, ilosc_dostepnych, kategoria, status_dostepnosci, zdjecie) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-                        
-                        $stmt->bind_param("ssddissb", $title, $description, $price, $vat, $quantity, $category, $status, $image_data);
+                            VALUES ('$title', '$description', $price, $vat, $quantity, '$category', $status, '$image_data')";
+                            
+                        if($this->conn->query($query)) {
+                            $message = '<div class="success">Produkt został dodany pomyślnie.</div>';
+                        } else {
+                            $message = '<div class="error">Błąd podczas dodawania: ' . $this->conn->error . '</div>';
+                        }
                     }
                 } else {
                     $message = '<div class="error">Niedozwolony format pliku. Dozwolone formaty: jpg, jpeg, png, gif</div>';
@@ -156,33 +169,32 @@ class Produkty {
             } else {
                 // Update without changing the image
                 if($id) {
-                    $stmt = $this->conn->prepare("UPDATE produkty SET 
-                        tytul = ?, 
-                        opis = ?, 
-                        cena_netto = ?,
-                        podatek_vat = ?,
-                        ilosc_dostepnych = ?,
-                        kategoria = ?,
-                        status_dostepnosci = ?
-                        WHERE id = ?");
-                    
-                    $stmt->bind_param("ssddissi", $title, $description, $price, $vat, $quantity, $category, $status, $id);
+                    $query = "UPDATE produkty SET 
+                        tytul = '$title', 
+                        opis = '$description', 
+                        cena_netto = $price,
+                        podatek_vat = $vat,
+                        ilosc_dostepnych = $quantity,
+                        kategoria = '$category',
+                        status_dostepnosci = $status
+                        WHERE id = $id";
+                        
+                    if($this->conn->query($query)) {
+                        $message = '<div class="success">Produkt został zaktualizowany pomyślnie.</div>';
+                    } else {
+                        $message = '<div class="error">Błąd podczas aktualizacji: ' . $this->conn->error . '</div>';
+                    }
                 } else {
-                    $stmt = $this->conn->prepare("INSERT INTO produkty 
+                    $query = "INSERT INTO produkty 
                         (tytul, opis, cena_netto, podatek_vat, ilosc_dostepnych, kategoria, status_dostepnosci) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?)");
-                    
-                    $stmt->bind_param("ssddiss", $title, $description, $price, $vat, $quantity, $category, $status);
+                        VALUES ('$title', '$description', $price, $vat, $quantity, '$category', $status)";
+                        
+                    if($this->conn->query($query)) {
+                        $message = '<div class="success">Produkt został dodany pomyślnie.</div>';
+                    } else {
+                        $message = '<div class="error">Błąd podczas dodawania: ' . $this->conn->error . '</div>';
+                    }
                 }
-            }
-
-            if(isset($stmt)) {
-                if($stmt->execute()) {
-                    $message = '<div class="success">Produkt został ' . ($id ? 'zaktualizowany' : 'dodany') . ' pomyślnie.</div>';
-                } else {
-                    $message = '<div class="error">Błąd: ' . $stmt->error . '</div>';
-                }
-                $stmt->close();
             }
         }
 
@@ -201,6 +213,9 @@ class Produkty {
             $result = $this->conn->query("SELECT * FROM produkty WHERE id = $id");
             $editProduct = $result->fetch_assoc();
         }
+
+        // Get categories for dropdown
+        list($categories, $category_tree) = $this->getCategories();
 
         // Form HTML
         $output = '
@@ -247,7 +262,11 @@ class Produkty {
                 
                 <div class="form-group">
                     <label>Kategoria:</label>
-                    <input type="text" name="category" value="' . ($editProduct ? htmlspecialchars($editProduct['kategoria']) : '') . '">
+                    <select name="category" required>
+                        <option value="">Wybierz kategorię</option>
+                        ' . $this->buildCategoryOptions($categories, $category_tree, 0, 0, 
+                            ($editProduct ? $editProduct['kategoria'] : '')) . '
+                    </select>
                 </div>
                 
                 <div class="form-group">

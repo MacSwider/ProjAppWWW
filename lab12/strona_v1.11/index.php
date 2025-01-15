@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+    <link rel="stylesheet" href="css/style.css"> 
     <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
     <meta http-equiv="Content-Language" content="pl" />
     <meta name="Author" content="Maciej Świder" />
     <title>Historia Eksploracji Kosmosu</title>
-    <link rel="stylesheet" href="css/style.css">            
+               
 </head>
 <body>
 <?php

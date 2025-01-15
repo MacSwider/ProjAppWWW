@@ -1,51 +1,64 @@
 <?php
 class Categories {
 
-	/*
-     * PokazKategorie() - Wyświetla panel kategorii dla zalogowanego użytkownika
-     * Funkcja sprawdza, czy użytkownik jest zalogowany, a następnie wyświetla
-     * panel kategorii, w tym nagłówek i listę kategorii. Jeśli użytkownik nie jest
-     * zalogowany, wyświetla formularz logowania.
-     */
+ 
     function PokazKategorie() {
         $Admin = new Admin();
         $status_login = $Admin->CheckLogin();                                                            
         if ($status_login == 1) {
             echo '<h3 class="h3-admin">Panel Kategorii</h3>';
             echo '<div class="admin-links">';
-
             echo '</div>';
-			// przechodzi do funkcji ListaKategorii()
             echo $this->ListaKategorii();
         } else {
             echo $Admin->FormularzLogowania();
         }
     }
-	
 
     function ListaKategorii() {
         global $conn;
-        $query = "SELECT id, matka, nazwa FROM kategorie ORDER BY matka, id ASC LIMIT 100";
+        
+        // Pobierz wszystkie kategorie
+        $query = "SELECT * FROM kategorie ORDER BY matka, nazwa";
         $result = $conn->query($query);
+        
+        if (!$result) {
+            echo "Błąd podczas pobierania kategorii: " . $conn->error;
+            return;
+        }
+    
         $categories = array();
         $category_tree = array();
-
-        // Najpierw zbuduj pełną strukturę kategorii
+    
+        // Buduj tablice kategorii
         while($row = $result->fetch_assoc()) {
             $categories[$row['id']] = $row;
-            
-            // Zbuduj strukturę drzewa kategorii
             if (!isset($category_tree[$row['matka']])) {
                 $category_tree[$row['matka']] = array();
             }
             $category_tree[$row['matka']][] = $row['id'];
         }
-        
+    
         echo '<div class="tree-container">';
-		//przechodzi do funkcji printCategoryTreeRecursive, aby wygenerować rekurencyjnie zawartość drzewa
-        $this->printCategoryTreeRecursive($categories, $category_tree, 0, 0);
+        
+        // Najpierw wyświetl kategorie główne (matka = 0)
+        if (isset($category_tree[0])) {
+            foreach ($category_tree[0] as $category_id) {
+                $this->renderCategoryTree($categories, $category_tree, $category_id);
+            }
+        }
+        
+        // Następnie wyświetl kategorie, które mogą być odłączone lub mieć nieprawidłowego rodzica
+        foreach ($categories as $id => $category) {
+            // Jeśli kategoria nie została jeszcze wyświetlona (nie ma jej w drzewie)
+            if (!$this->isCategoryInTree($id, $category_tree, 0)) {
+                $this->renderCategoryTree($categories, $category_tree, $id);
+            }
+        }
+        
         echo '</div>';
-
+    
+        // Przyciski akcji
         echo '<div class="category-actions">';
         echo '<a href="?idp=-1" class="return-btn">Powrót do Panelu Admina</a>';
         echo '<a href="?idp=-9" class="category-btn">Create New Category</a>';
@@ -53,42 +66,53 @@ class Categories {
         echo '<a href="?idp=-11" class="category-btn">Delete Category</a>';
         echo '</div>';
     }
-
-    /*
-     * printCategoryTreeRecursive() - Rekurencyjna metoda do wyświetlania drzewa kategorii
-     * Renderuje hierarchiczną strukturę kategorii, wyświetlając kolejne poziomy zagnieżdżenia
-     * z zachowaniem relacji rodzic-dziecko. Używa wcięć do pokazania struktury drzewiastej.
-     */
-    function printCategoryTreeRecursive($categories, $category_tree, $parent_id, $depth) {
-        // Sprawdź, czy istnieją podkategorie dla danego rodzica
-        if (!isset($category_tree[$parent_id]) || empty($category_tree[$parent_id])) {
+    
+    // Nowa funkcja pomocnicza do sprawdzania, czy kategoria jest już w drzewie
+    private function isCategoryInTree($category_id, $category_tree, $parent_id) {
+        if (!isset($category_tree[$parent_id])) {
+            return false;
+        }
+    
+        if (in_array($category_id, $category_tree[$parent_id])) {
+            return true;
+        }
+    
+        foreach ($category_tree[$parent_id] as $child_id) {
+            if (isset($category_tree[$child_id]) && $this->isCategoryInTree($category_id, $category_tree, $child_id)) {
+                return true;
+            }
+        }
+    
+        return false;
+    }
+    
+    private function renderCategoryTree($categories, $category_tree, $category_id) {
+        if (!isset($categories[$category_id])) {
             return;
         }
-
-        // Przejdź przez wszystkie podkategorie
-        foreach ($category_tree[$parent_id] as $category_id) {
-            $category = $categories[$category_id];
-            
-            // Wyświetl nazwę kategorii z odpowiednim wcięciem i linkiem
-            echo str_repeat('     ', $depth);
-            echo $depth > 0 ? '|-' : '';
-            echo '<a href="?category=' . $category_id . '" class="category-link">' . 
-                 htmlspecialchars($category['nazwa']) . '</a>' . "\n";
-            
-            // Rekurencyjnie wyświetl podkategorie
-            $this->printCategoryTreeRecursive($categories, $category_tree, $category_id, $depth + 1);
+        
+        $category = $categories[$category_id];
+        
+        echo '<div class="category-tree-item">';
+        echo '<div class="category-content">';
+        echo '<span class="category-name" data-id="' . $category_id . '">' . 
+             htmlspecialchars($category['nazwa']) . '</span>';
+        echo '<div class="category-actions">';
+        echo '<a href="?idp=-10&edit_category=' . $category_id . '" class="edit-button">Edit</a>';
+        echo '<a href="?idp=-11&delete_category=' . $category_id . '" class="delete-button">Delete</a>';
+        echo '</div>';
+        echo '</div>';
+    
+        // Wyświetl podkategorie
+        if (isset($category_tree[$category_id])) {
+            foreach ($category_tree[$category_id] as $child_id) {
+                $this->renderCategoryTree($categories, $category_tree, $child_id);
+            }
         }
+        
+        echo '</div>';
     }
 
-
-
-    /*
-     * DodajKategorie() - Dodaje nową kategorię do systemu
-     * 
-     * Funkcja obsługuje formularz dodawania nowej kategorii, weryfikuje dane wejściowe,
-     * sprawdza uprawnienia użytkownika i dokonuje zapisu do bazy danych.
-     * Wyświetla formularz dodawania kategorii lub komunikat o wyniku operacji
-     */
     function DodajKategorie() {
         $Admin = new Admin();
         $status_login = $Admin->CheckLogin();
