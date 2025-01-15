@@ -1,12 +1,15 @@
 <?php
+// Klasa obsługująca zarządzanie produktami w sklepie
 class Produkty {
     private $conn;
 
+    // Konstruktor inicjalizujący połączenie z bazą danych
     public function __construct() {
         global $conn;
         $this->conn = $conn;
     }
 
+    // Pobiera wszystkie kategorie z bazy i tworzy drzewo kategorii
     private function getCategories() {
         $query = "SELECT id, matka, nazwa FROM kategorie ORDER BY matka, id ASC";
         $result = $this->conn->query($query);
@@ -24,6 +27,7 @@ class Produkty {
         return array($categories, $category_tree);
     }
 
+    // Buduje listę opcji dla selecta z kategoriami w formie drzewa
     private function buildCategoryOptions($categories, $category_tree, $parent = 0, $level = 0, $selected = '') {
         $html = '';
         if (isset($category_tree[$parent])) {
@@ -42,14 +46,17 @@ class Produkty {
         return $html;
     }
 
+    // Wyświetla listę produktów w sklepie dla klientów
     public function pokazSklep() {
         $output = '<div class="shop-container">';
         $output .= '<h2>Sklep</h2>';
     
+        // Komunikat o dodaniu produktu do koszyka
         if (isset($_GET['added'])) {
             $output .= '<div class="success-message">Produkt został dodany do koszyka!</div>';
         }
     
+        // Link do panelu administracyjnego dla zalogowanych użytkowników
         if(isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
             $output .= '<div class="admin-link"><a href="?idp=12" class="btn-edit">Panel zarządzania produktami</a></div>';
         }
@@ -67,6 +74,7 @@ class Produkty {
                 <div class="product-card">
                     <div class="product-image">';
                 
+                // Wyświetlanie zdjęcia produktu
                 if($row['zdjecie']) {
                     $image_data = base64_encode($row['zdjecie']);
                     $output .= '<img src="data:image/jpeg;base64,' . $image_data . '" alt="' . htmlspecialchars($row['tytul']) . '">';
@@ -106,14 +114,17 @@ class Produkty {
         $output .= '</div></div>';
         return $output;
     }
+
+    // Panel administracyjny do zarządzania produktami
     public function zarzadzajProduktem() {
+        // Sprawdzenie uprawnień użytkownika
         if(!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
             return '<p class="error">Dostęp zabroniony. Zaloguj się jako administrator.</p>';
         }
 
         $message = '';
 
-        // Handle form submission
+        // Obsługa formularza dodawania/edycji produktu
         if(isset($_POST['submit'])) {
             $id = isset($_POST['id']) ? intval($_POST['id']) : null;
             $title = $this->conn->real_escape_string($_POST['title']);
@@ -124,7 +135,7 @@ class Produkty {
             $category = $this->conn->real_escape_string($_POST['category']);
             $status = isset($_POST['status']) ? 1 : 0;
             
-            // Handle image upload
+            // Obsługa przesyłania zdjęcia
             if(isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
                 $allowed = ['jpg', 'jpeg', 'png', 'gif'];
                 $filename = $_FILES['image']['name'];
@@ -134,7 +145,7 @@ class Produkty {
                     $image_data = addslashes(file_get_contents($_FILES['image']['tmp_name']));
                     
                     if($id) {
-                        // Update existing product with new image
+                        // Aktualizacja istniejącego produktu z nowym zdjęciem
                         $query = "UPDATE produkty SET 
                             tytul = '$title', 
                             opis = '$description', 
@@ -152,7 +163,7 @@ class Produkty {
                             $message = '<div class="error">Błąd podczas aktualizacji: ' . $this->conn->error . '</div>';
                         }
                     } else {
-                        // Insert new product with image
+                        // Dodawanie nowego produktu ze zdjęciem
                         $query = "INSERT INTO produkty 
                             (tytul, opis, cena_netto, podatek_vat, ilosc_dostepnych, kategoria, status_dostepnosci, zdjecie) 
                             VALUES ('$title', '$description', $price, $vat, $quantity, '$category', $status, '$image_data')";
@@ -167,7 +178,7 @@ class Produkty {
                     $message = '<div class="error">Niedozwolony format pliku. Dozwolone formaty: jpg, jpeg, png, gif</div>';
                 }
             } else {
-                // Update without changing the image
+                // Aktualizacja bez zmiany zdjęcia
                 if($id) {
                     $query = "UPDATE produkty SET 
                         tytul = '$title', 
@@ -198,7 +209,7 @@ class Produkty {
             }
         }
 
-        // Handle product deletion
+        // Obsługa usuwania produktu
         if(isset($_POST['delete'])) {
             $id = intval($_POST['id']);
             if($this->conn->query("DELETE FROM produkty WHERE id = $id")) {
@@ -206,7 +217,7 @@ class Produkty {
             }
         }
 
-        // Get product for editing
+        // Pobieranie produktu do edycji
         $editProduct = null;
         if(isset($_GET['edit'])) {
             $id = intval($_GET['edit']);
@@ -214,10 +225,10 @@ class Produkty {
             $editProduct = $result->fetch_assoc();
         }
 
-        // Get categories for dropdown
+        // Pobieranie kategorii do rozwijanej listy
         list($categories, $category_tree) = $this->getCategories();
 
-        // Form HTML
+        // Generowanie formularza HTML
         $output = '
         <div class="admin-panel">
             <h2>' . ($editProduct ? 'Edytuj produkt' : 'Dodaj nowy produkt') . '</h2>
@@ -295,6 +306,7 @@ class Produkty {
                 </thead>
                 <tbody>';
 
+        // Wyświetlanie listy wszystkich produktów
         $result = $this->conn->query("SELECT * FROM produkty ORDER BY data_utworzenia DESC");
         while($row = $result->fetch_assoc()) {
             $output .= '

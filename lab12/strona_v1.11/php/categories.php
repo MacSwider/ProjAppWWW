@@ -1,7 +1,13 @@
 <?php
+/**
+ * Klasa Categories - zarządza kategoriami w systemie
+ */
 class Categories {
 
- 
+    /**
+     * Wyświetla panel zarządzania kategoriami
+     * Dostępny tylko dla zalogowanych administratorów
+     */
     function PokazKategorie() {
         $Admin = new Admin();
         $status_login = $Admin->CheckLogin();                                                            
@@ -15,6 +21,10 @@ class Categories {
         }
     }
 
+    /**
+     * Wyświetla listę wszystkich kategorii w formie drzewa
+     * Pobiera kategorie z bazy danych i buduje hierarchiczną strukturę
+     */
     function ListaKategorii() {
         global $conn;
         
@@ -50,7 +60,6 @@ class Categories {
         
         // Następnie wyświetl kategorie, które mogą być odłączone lub mieć nieprawidłowego rodzica
         foreach ($categories as $id => $category) {
-            // Jeśli kategoria nie została jeszcze wyświetlona (nie ma jej w drzewie)
             if (!$this->isCategoryInTree($id, $category_tree, 0)) {
                 $this->renderCategoryTree($categories, $category_tree, $id);
             }
@@ -61,13 +70,16 @@ class Categories {
         // Przyciski akcji
         echo '<div class="category-actions">';
         echo '<a href="?idp=-1" class="return-btn">Powrót do Panelu Admina</a>';
-        echo '<a href="?idp=-9" class="category-btn">Create New Category</a>';
-        echo '<a href="?idp=-10" class="category-btn">Edit Category</a>';
-        echo '<a href="?idp=-11" class="category-btn">Delete Category</a>';
+        echo '<a href="?idp=-9" class="category-btn">Dodaj Nową Kategorię</a>';
+        echo '<a href="?idp=-10" class="category-btn">Edytuj Kategorię</a>';
+        echo '<a href="?idp=-11" class="category-btn">Usuń Kategorię</a>';
         echo '</div>';
     }
     
-    // Nowa funkcja pomocnicza do sprawdzania, czy kategoria jest już w drzewie
+   
+     //Sprawdza czy dana kategoria znajduje się już w drzewie kategorii
+    
+    
     private function isCategoryInTree($category_id, $category_tree, $parent_id) {
         if (!isset($category_tree[$parent_id])) {
             return false;
@@ -86,6 +98,9 @@ class Categories {
         return false;
     }
     
+    
+    //Renderuje pojedynczy element drzewa kategorii wraz z jego podkategoriami
+    
     private function renderCategoryTree($categories, $category_tree, $category_id) {
         if (!isset($categories[$category_id])) {
             return;
@@ -98,8 +113,8 @@ class Categories {
         echo '<span class="category-name" data-id="' . $category_id . '">' . 
              htmlspecialchars($category['nazwa']) . '</span>';
         echo '<div class="category-actions">';
-        echo '<a href="?idp=-10&edit_category=' . $category_id . '" class="edit-button">Edit</a>';
-        echo '<a href="?idp=-11&delete_category=' . $category_id . '" class="delete-button">Delete</a>';
+        echo '<a href="?idp=-10&edit_category=' . $category_id . '" class="edit-button">Edytuj</a>';
+        echo '<a href="?idp=-11&delete_category=' . $category_id . '" class="delete-button">Usuń</a>';
         echo '</div>';
         echo '</div>';
     
@@ -113,6 +128,10 @@ class Categories {
         echo '</div>';
     }
 
+    /**
+     * Obsługuje dodawanie nowej kategorii
+     * Wyświetla formularz i przetwarza dane po jego wysłaniu
+     */
     function DodajKategorie() {
         $Admin = new Admin();
         $status_login = $Admin->CheckLogin();
@@ -209,13 +228,10 @@ class Categories {
         
         echo '</div>';
     }
-    /*
-     * EdytujKategorie() - Umożliwia edycję istniejącej kategorii
-     * 
-     * Funkcja pozwala na modyfikację nazwy i kategorii nadrzędnej dla wybranej kategorii.
-     * Weryfikuje poprawność danych i zapobiega tworzeniu cyklicznych zależności.
-     * 
-     * Wyświetla formularz edycji kategorii lub komunikat o wyniku operacji
+
+    /**
+     * Obsługuje edycję istniejącej kategorii
+     * Wyświetla formularz z aktualnymi danymi kategorii i przetwarza zmiany
      */
     function EdytujKategorie() {
         $Admin = new Admin();
@@ -322,13 +338,9 @@ class Categories {
         echo '</div>';
     }
 
-    /*
-     * UsunKategorie() - Usuwa kategorię z systemu
-     * 
-     * Funkcja odpowiada za usuwanie kategorii, z zabezpieczeniami przed usunięciem
-     * kategorii posiadającej podkategorie. Wymaga potwierdzenia przez użytkownika.
-     * 
-     * Wyświetla formularz usuwania kategorii lub komunikat o wyniku operacji
+    /**
+     * Obsługuje usuwanie kategorii
+     * Sprawdza czy kategoria nie ma podkategorii przed usunięciem
      */
     function UsunKategorie() {
         $Admin = new Admin();

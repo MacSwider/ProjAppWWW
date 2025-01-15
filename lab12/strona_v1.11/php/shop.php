@@ -1,6 +1,8 @@
 <?php
 
-// Funkcja dodająca produkt do koszyka
+// Plik zawiera funkcje do obsługi koszyka zakupowego
+
+// Funkcja dodaje produkt do koszyka lub zwiększa jego ilość jeśli już istnieje
 function dodajDoKoszyka($id_produktu, $tytul, $cena_netto, $podatek_vat, $ilosc) {
     // Upewnij się że sesja jest rozpoczęta
     if (session_status() == PHP_SESSION_NONE) {
@@ -12,7 +14,7 @@ function dodajDoKoszyka($id_produktu, $tytul, $cena_netto, $podatek_vat, $ilosc)
         $_SESSION['koszyk'] = array();
     }
 
-    // Oblicz cenę brutto
+    // Oblicz cenę brutto dodając VAT do ceny netto
     $cena_brutto = $cena_netto * (1 + $podatek_vat / 100);
 
     // Sprawdź, czy produkt już istnieje w koszyku
@@ -31,14 +33,15 @@ function dodajDoKoszyka($id_produktu, $tytul, $cena_netto, $podatek_vat, $ilosc)
     }
 }
 
-// Funkcja usuwająca produkt z koszyka
+// Funkcja usuwa wybrany produkt z koszyka
 function usunZKoszyka($id_produktu) {
     if (isset($_SESSION['koszyk'][$id_produktu])) {
         unset($_SESSION['koszyk'][$id_produktu]);
     }
 }
 
-// Funkcja aktualizująca ilość produktu
+// Funkcja aktualizuje ilość produktu w koszyku
+// Jeśli nowa ilość jest <= 0, produkt jest usuwany
 function aktualizujIlosc($id_produktu, $nowa_ilosc) {
     if (isset($_SESSION['koszyk'][$id_produktu])) {
         if ($nowa_ilosc > 0) {
@@ -49,7 +52,7 @@ function aktualizujIlosc($id_produktu, $nowa_ilosc) {
     }
 }
 
-// Funkcja obliczająca sumę koszyka
+// Funkcja oblicza łączną wartość wszystkich produktów w koszyku
 function obliczSumeKoszyka() {
     $suma = 0;
     if (isset($_SESSION['koszyk'])) {
@@ -60,14 +63,18 @@ function obliczSumeKoszyka() {
     return $suma;
 }
 
-// Funkcja czyszcząca koszyk
+// Funkcja usuwa wszystkie produkty z koszyka
 function wyczyscKoszyk() {
     if (isset($_SESSION['koszyk'])) {
         $_SESSION['koszyk'] = array();
     }
 }
 
+// Funkcja wyświetla zawartość koszyka w formie tabeli
+// Zawiera funkcje do aktualizacji ilości, usuwania produktów
+// i przejścia do finalizacji zamówienia
 function pokazKoszyk() {
+    // Jeśli koszyk jest pusty, wyświetl komunikat
     if (!isset($_SESSION['koszyk']) || empty($_SESSION['koszyk'])) {
         echo '<div class="cart-empty">
             <h2>Twój koszyk jest pusty</h2>
@@ -76,6 +83,7 @@ function pokazKoszyk() {
         return;
     }
 
+    // Wyświetl tabelę z produktami w koszyku
     echo '<div class="cart-container">
         <h2>Twój koszyk</h2>
         <table class="cart-table">
@@ -92,6 +100,7 @@ function pokazKoszyk() {
             </thead>
             <tbody>';
 
+    // Wyświetl każdy produkt w osobnym wierszu
     foreach ($_SESSION['koszyk'] as $id_produktu => $produkt) {
         echo '<tr>
             <td>' . htmlspecialchars($produkt['tytul']) . '</td>
@@ -115,6 +124,7 @@ function pokazKoszyk() {
         </tr>';
     }
 
+    // Wyświetl podsumowanie i przyciski akcji
     echo '</tbody>
         <tfoot>
             <tr>
@@ -132,7 +142,8 @@ function pokazKoszyk() {
         <a href="index.php?idp=14" class="button checkout-btn">Przejdź do kasy</a>
     </div>
     </div>';
-    // Obsługa akcji musi być przed jakimkolwiek outputem
+
+    // Obsługa akcji (aktualizacja, usuwanie, czyszczenie koszyka)
     if (isset($_GET['action'])) {
         switch ($_GET['action']) {
             case 'update':

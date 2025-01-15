@@ -1,6 +1,6 @@
 <?php
 
-$something = "meow";
+$something = "sudo";
 echo $something;
 
 ?>
