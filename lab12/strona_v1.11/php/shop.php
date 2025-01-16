@@ -74,14 +74,58 @@ function wyczyscKoszyk() {
 // Zawiera funkcje do aktualizacji ilości, usuwania produktów
 // i przejścia do finalizacji zamówienia
 function pokazKoszyk() {
-    // Jeśli koszyk jest pusty, wyświetl komunikat
-    if (!isset($_SESSION['koszyk']) || empty($_SESSION['koszyk'])) {
-        echo '<div class="cart-empty">
-            <h2>Twój koszyk jest pusty</h2>
-            <a href="index.php?idp=11" class="button">Przejdź do sklepu</a>
-        </div>';
-        return;
+    if (!isset($_SESSION['koszyk'])) {
+        $_SESSION['koszyk'] = array();
     }
+
+    echo '<div class="cart-container">';
+    echo '<h2>Koszyk</h2>';
+
+    if (empty($_SESSION['koszyk'])) {
+        echo '<p class="empty-cart">Twój koszyk jest pusty.</p>';
+    } else {
+        echo '<div class="cart-items">';
+        $suma_netto = 0;
+        $suma_brutto = 0;
+
+        foreach ($_SESSION['koszyk'] as $id => $produkt) {
+            $cena_netto_total = $produkt['cena_netto'] * $produkt['ilosc'];
+            $cena_brutto_total = $produkt['cena_brutto'] * $produkt['ilosc'];
+            $suma_netto += $cena_netto_total;
+            $suma_brutto += $cena_brutto_total;
+
+            
+        }
+
+        echo '<div class="cart-summary">';
+        echo '<h3>Podsumowanie</h3>';
+        echo '<p>Suma netto: ' . number_format($suma_netto, 2) . ' zł</p>';
+        echo '<p>Suma brutto: ' . number_format($suma_brutto, 2) . ' zł</p>';
+        echo '</div>';
+
+        echo '<form method="post" class="clear-cart">';
+        echo '<button type="submit" name="wyczysc_koszyk">Wyczyść koszyk</button>';
+        echo '</form>';
+    }
+
+    echo '</div>';
+
+    // Obsługa usuwania produktu z koszyka
+    if (isset($_POST['usun_z_koszyka']) && isset($_POST['remove_id'])) {
+        $id = $_POST['remove_id'];
+        if (isset($_SESSION['koszyk'][$id])) {
+            unset($_SESSION['koszyk'][$id]);
+            header('Location: index.php?idp=13');
+            exit;
+        }
+    }
+    // Obsługa czyszczenia koszyka
+    if (isset($_POST['wyczysc_koszyk'])) {
+        $_SESSION['koszyk'] = array();
+        echo "<script>window.location.href = 'index.php?idp=13';</script>";
+        exit;
+    }
+}
 
     // Wyświetl tabelę z produktami w koszyku
     echo '<div class="cart-container">
@@ -164,5 +208,5 @@ function pokazKoszyk() {
                 break;
         }
     }
-}
+
 ?>

@@ -2,7 +2,14 @@
 <html lang="pl">
 <head>
     <!-- Dołączenie arkusza stylów -->
-    <link rel="stylesheet" href="css/style.css"> 
+    <?php
+    $id = $_GET['idp'] ?? '1';
+    if ($id == '10') {
+        echo '<link rel="stylesheet" href="css/style2.css">';  //skrypty korzystają z innego css'a
+    } else {
+        echo '<link rel="stylesheet" href="css/style.css">';    //css dla reszty stron
+    }
+    ?>
     <!-- Ustawienia kodowania i języka -->
     <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
     <meta http-equiv="Content-Language" content="pl" />
@@ -113,19 +120,19 @@ switch ($id) {
         echo $Contact->PrzypomnijHaslo("otherstory118@gmail.com"); 	
         break;        
     case '-8': // Zarządzanie kategoriami
-        $Categories = new Categories($conn);
+        $Categories = new Categories();
         echo $Categories->PokazKategorie();
         break;
     case '-9': // Dodawanie kategorii
-        $Categories = new Categories($conn);
+        $Categories = new Categories();
         echo $Categories->DodajKategorie();
         break;
     case '-10': // Edycja kategorii
-        $Categories = new Categories($conn);
+        $Categories = new Categories();
         echo $Categories->EdytujKategorie();
         break;
     case '-11': // Usuwanie kategorii
-        $Categories = new Categories($conn);
+        $Categories = new Categories();
         echo $Categories->UsunKategorie();
         break;
     case '-12': // Formularz logowania

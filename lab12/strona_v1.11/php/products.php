@@ -48,36 +48,63 @@ class Produkty {
 
     // Wyświetla listę produktów w sklepie dla klientów
     public function pokazSklep() {
+        // Inicjalizacja koszyka w sesji, jeśli nie istnieje
+        if (!isset($_SESSION['koszyk'])) {
+            $_SESSION['koszyk'] = array();
+        }
+    
+        // Obsługa dodawania do koszyka
+        if (isset($_POST['dodaj_do_koszyka'])) {
+            $id_produktu = $_POST['id_produktu'];
+            $tytul = $_POST['tytul'];
+            $cena_netto = floatval($_POST['cena_netto']);
+            $podatek_vat = floatval($_POST['podatek_vat']);
+            $ilosc = intval($_POST['ilosc']);
+            
+            // Oblicz cenę brutto
+            $cena_brutto = $cena_netto * (1 + ($podatek_vat / 100));
+            
+            // Dodaj lub zaktualizuj produkt w koszyku
+            if (isset($_SESSION['koszyk'][$id_produktu])) {
+                $_SESSION['koszyk'][$id_produktu]['ilosc'] += $ilosc;
+            } else {
+                $_SESSION['koszyk'][$id_produktu] = array(
+                    'tytul' => $tytul,
+                    'cena_netto' => $cena_netto,
+                    'podatek_vat' => $podatek_vat,
+                    'cena_brutto' => $cena_brutto,
+                    'ilosc' => $ilosc
+                );
+            }
+            
+            // Przekieruj z powrotem do sklepu z komunikatem
+            header('Location: index.php?idp=11&added=1');
+            exit;
+        }
+    
         $output = '<div class="shop-container">';
         $output .= '<h2>Sklep</h2>';
     
-        // Komunikat o dodaniu produktu do koszyka
         if (isset($_GET['added'])) {
             $output .= '<div class="success-message">Produkt został dodany do koszyka!</div>';
         }
     
-        // Link do panelu administracyjnego dla zalogowanych użytkowników
-        if(isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
-            $output .= '<div class="admin-link"><a href="?idp=12" class="btn-edit">Panel zarządzania produktami</a></div>';
-        }
-    
-        $query = "SELECT * FROM produkty ORDER BY data_utworzenia DESC";
+        // Wyświetlanie produktów
+        $query = "SELECT * FROM produkty WHERE status_dostepnosci = 1 ORDER BY data_utworzenia DESC";
         $result = $this->conn->query($query);
     
-        $output .= '<div class="products-grid">';
-    
-        if($result && $result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
+        if ($result && $result->num_rows > 0) {
+            $output .= '<div class="products-grid">';
+            while ($row = $result->fetch_assoc()) {
                 $cena_brutto = $row['cena_netto'] * (1 + ($row['podatek_vat'] / 100));
                 
                 $output .= '
                 <div class="product-card">
                     <div class="product-image">';
                 
-                // Wyświetlanie zdjęcia produktu
                 if($row['zdjecie']) {
-                    $image_data = base64_encode($row['zdjecie']);
-                    $output .= '<img src="data:image/jpeg;base64,' . $image_data . '" alt="' . htmlspecialchars($row['tytul']) . '">';
+                    $output .= '<img src="data:image/jpeg;base64,' . base64_encode($row['zdjecie']) . '" 
+                               alt="' . htmlspecialchars($row['tytul']) . '">';
                 } else {
                     $output .= '<img src="img/no-image.png" alt="Brak zdjęcia">';
                 }
@@ -96,22 +123,26 @@ class Produkty {
                             <p>Ilość: ' . $row['ilosc_dostepnych'] . ' szt.</p>
                             <p>Kategoria: ' . htmlspecialchars($row['kategoria']) . '</p>
                         </div>
-                        <form method="post" action="index.php?idp=11&action=add" class="add-to-cart-form">
+                        <form method="post" class="add-to-cart-form">
                             <input type="hidden" name="id_produktu" value="' . $row['id'] . '">
                             <input type="hidden" name="tytul" value="' . htmlspecialchars($row['tytul']) . '">
                             <input type="hidden" name="cena_netto" value="' . $row['cena_netto'] . '">
                             <input type="hidden" name="podatek_vat" value="' . $row['podatek_vat'] . '">
-                            <input type="number" name="ilosc" value="1" min="1" max="' . $row['ilosc_dostepnych'] . '" class="quantity-input">
-                            <button type="submit" class="btn-add-to-cart">Dodaj do koszyka</button>
+                            <input type="number" name="ilosc" value="1" min="1" max="' . $row['ilosc_dostepnych'] . '" 
+                                   class="quantity-input">
+                            <button type="submit" name="dodaj_do_koszyka" class="btn-add-to-cart">
+                                Dodaj do koszyka
+                            </button>
                         </form>
                     </div>
                 </div>';
             }
+            $output .= '</div>';
         } else {
-            $output .= '<p class="no-products">Brak produktów w sklepie.</p>';
+            $output .= '<p class="no-products">Brak dostępnych produktów.</p>';
         }
     
-        $output .= '</div></div>';
+        $output .= '</div>';
         return $output;
     }
 
