@@ -145,28 +145,31 @@ function pokazKoszyk() {
             <tbody>';
 
     // Wyświetl każdy produkt w osobnym wierszu
-    foreach ($_SESSION['koszyk'] as $id_produktu => $produkt) {
-        echo '<tr>
-            <td>' . htmlspecialchars($produkt['tytul']) . '</td>
-            <td>' . number_format($produkt['cena_netto'], 2) . ' zł</td>
-            <td>' . $produkt['podatek_vat'] . '%</td>
-            <td>' . number_format($produkt['cena_brutto'], 2) . ' zł</td>
-            <td>
-                <form method="post" action="index.php?idp=13&action=update">
-                    <input type="hidden" name="id_produktu" value="' . $id_produktu . '">
-                    <input type="number" name="ilosc" value="' . $produkt['ilosc'] . '" min="1" class="quantity-input">
-                    <button type="submit" class="update-btn">Aktualizuj</button>
-                </form>
-            </td>
-            <td>' . number_format($produkt['cena_brutto'] * $produkt['ilosc'], 2) . ' zł</td>
-            <td>
-                <form method="post" action="index.php?idp=13&action=remove">
-                    <input type="hidden" name="id_produktu" value="' . $id_produktu . '">
-                    <button type="submit" class="remove-btn">Usuń</button>
-                </form>
-            </td>
-        </tr>';
+    if (isset($_SESSION['koszyk']) && is_array($_SESSION['koszyk'])) {
+        foreach ($_SESSION['koszyk'] as $id_produktu => $produkt) {
+            echo '<tr>
+                <td>' . htmlspecialchars($produkt['tytul']) . '</td>
+                <td>' . number_format($produkt['cena_netto'], 2) . ' zł</td>
+                <td>' . $produkt['podatek_vat'] . '%</td>
+                <td>' . number_format($produkt['cena_brutto'], 2) . ' zł</td>
+                <td>
+                    <form method="post" action="index.php?idp=13&action=update">
+                        <input type="hidden" name="id_produktu" value="' . $id_produktu . '">
+                        <input type="number" name="ilosc" value="' . $produkt['ilosc'] . '" min="1" class="quantity-input">
+                        <button type="submit" class="update-btn">Aktualizuj</button>
+                    </form>
+                </td>
+                <td>' . number_format($produkt['cena_brutto'] * $produkt['ilosc'], 2) . ' zł</td>
+                <td>
+                    <form method="post" action="index.php?idp=13&action=remove">
+                        <input type="hidden" name="id_produktu" value="' . $id_produktu . '">
+                        <button type="submit" class="remove-btn">Usuń</button>
+                    </form>
+                </td>
+            </tr>';
+        }
     }
+    
 
     // Wyświetl podsumowanie i przyciski akcji
     echo '</tbody>
